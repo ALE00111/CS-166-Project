@@ -1,5 +1,3 @@
-# CS-166-Project
-
 * Go to the project directory that has the following folders/files: 
        data  java  README.txt  sql
 
