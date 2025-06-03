@@ -352,10 +352,6 @@ public class AirlineManagement {
                    while(usermenu) {
                      System.out.println("\nTECHNICIAN");
                      System.out.println("---------");
-                     //**the following functionalities should only be able to be used by customers**
-                     //  System.out.println("10. Search Flights");
-                     //  System.out.println(".........................");
-                     //  System.out.println(".........................");
                      System.out.println("20. Log out");
                   switch(readChoice()) {
                      case 20: usermenu = false; break;
