@@ -282,7 +282,7 @@ public class AirlineManagement {
               boolean usermenu = true;
               if(authorisedUser.equals("1")) {
                while(usermenu) {
-                  System.out.println("MAIN MENU");
+                  System.out.println("\nAIRLINE MANAGERS");
                   System.out.println("---------");
 
                   //**the following functionalities should only be able to be used by Management**
@@ -320,6 +320,8 @@ public class AirlineManagement {
               }
               else if (authorisedUser.equals("2")) {
                   while(usermenu) {
+                     System.out.println("\nCUSTOMER");
+                     System.out.println("---------");
                      //**the following functionalities should only be able to be used by customers**
                      //  System.out.println("10. Search Flights");
                      //  System.out.println(".........................");
@@ -333,6 +335,8 @@ public class AirlineManagement {
               }
               else if (authorisedUser.equals("3")) {
                   while(usermenu) {
+                     System.out.println("\nPILOTS");
+                     System.out.println("---------");
                      System.out.println("1. Maintenace Request");
                      System.out.println("20. Log out");
 
@@ -346,6 +350,8 @@ public class AirlineManagement {
               }
               else if(authorisedUser.equals("4")) {
                    while(usermenu) {
+                     System.out.println("\nTECHNICIAN");
+                     System.out.println("---------");
                      //**the following functionalities should only be able to be used by customers**
                      //  System.out.println("10. Search Flights");
                      //  System.out.println(".........................");
