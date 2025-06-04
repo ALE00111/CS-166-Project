@@ -821,7 +821,16 @@ public class AirlineManagement {
 // ================================
     public static void ViewDateFlights(AirlineManagement esql) {
         try {
-
+            System.out.print("Enter departure city: ");
+            String departureCity = in.readLine();
+            System.out.print("Enter arrival city: ");
+            String arrivalCity = in.readLine();
+            System.out.print("Enter departure date(M/D/YY): ");
+            String departureDate = in.readLine();
+            String query = "SELECT * FROM FlightInstance WHERE DepartureCity = '" + departureCity + "' AND ArrivalCity = '" + arrivalCity + "' AND FlightDate = '" + departureDate + "'";
+            int rowCount = esql.executeQuery(query);
+            System.out.println("total row(s): " + rowCount);
+            esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -829,7 +838,14 @@ public class AirlineManagement {
 
     public static void FindTicketPrice(AirlineManagement esql) {
         try {
+            System.out.print("Enter flight number: ");
+            String flightNumber = in.readLine();
+            System.out.print("Enter departure date(M/D/YY): ");
+            String departureDate = in.readLine();
+            String query = "SELECT Price FROM FlightInstance WHERE FlightNumber = ";
+            query += "'" + flightNumber + "' AND FlightDate = '" + departureDate + "'";
 
+            // ///////////////////////////////
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -837,7 +853,11 @@ public class AirlineManagement {
 
     public static void FindAirplaneType(AirlineManagement esql) {
         try {
-
+            System.out.print("Enter flight number: ");
+            String flightNumber = in.readLine();
+            System.out.print("Enter departure date(M/D/YY): ");
+            String departureDate = in.readLine();
+            // ///////////////////////////////
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -845,7 +865,7 @@ public class AirlineManagement {
 
     public static void MakeReservation(AirlineManagement esql) {
         try {
-
+            // ///////////////////////////////
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -853,7 +873,7 @@ public class AirlineManagement {
 
     public static void CancelReservation(AirlineManagement esql) {
         try {
-
+            // ///////////////////////////////
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -861,7 +881,13 @@ public class AirlineManagement {
 
     public static void ViewCurrentReservations(AirlineManagement esql) {
         try {
-
+            System.out.print("Enter customer ID: ");
+            String customerID = in.readLine();
+            String query = "SELECT * FROM Reservation WHERE CustomerID = ";
+            query += "'" + customerID + "'";
+            int rowCount = esql.executeQuery(query);
+            System.out.println("total row(s): " + rowCount);
+            esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -872,7 +898,13 @@ public class AirlineManagement {
 // ================================
     public static void FindAllRepairs(AirlineManagement esql) {
         try {
-
+            System.out.print("Enter Plane ID: ");
+            String planeID = in.readLine();
+            String query = "SELECT * FROM Repair WHERE PlaneID = ";
+            query += "'" + planeID + "'";
+            int rowCount = esql.executeQuery(query);
+            System.out.println("total row(s): " + rowCount);
+            esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -880,7 +912,13 @@ public class AirlineManagement {
 
     public static void FindAllPilotRequests(AirlineManagement esql) {
         try {
-
+            System.out.println("Enter Plane ID: ");
+            String planeID = in.readLine();
+            String query = "SELECT * FROM MaintenanceRequest WHERE PlaneID = ";
+            query += "'" + planeID + "'";
+            int rowCount = esql.executeQuery(query);
+            System.out.println("total row(s): " + rowCount);
+            esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
