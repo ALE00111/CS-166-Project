@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS Schedule;
 DROP TABLE IF EXISTS Flight;
 DROP TABLE IF EXISTS Plane;
 DROP TABLE IF EXISTS Pilot;
+DROP TABLE IF EXISTS USERS;
 
 -- Plane Table
 CREATE TABLE Plane (
@@ -106,4 +107,12 @@ CREATE TABLE MaintenanceRequest (
     PilotID TEXT,
     FOREIGN KEY (PlaneID) REFERENCES Plane(PlaneID),
     FOREIGN KEY (PilotID) REFERENCES Pilot(PilotID)
+);
+
+--Used For Login purposes
+CREATE TABLE Users (
+    UserID INTEGER PRIMARY KEY,
+    UserName TEXT,
+    Password TEXT,
+    UserType INTEGER
 );
