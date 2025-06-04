@@ -422,8 +422,7 @@ public class AirlineManagement {
          while (esql.executeQuery("SELECT * FROM Users WHERE UserName = '" + username + "'") > 0) {
             System.out.println("ANOTHER USER IS ALREADY USING THIS USERNAME. PLEASE CHOOSE ANTOHER \n");
             System.out.print("\nCREATE A USERNAME: ");
-            username = in.readLine(); 
-            System.out.println("\n") 
+            username = in.readLine();
          }
 
          System.out.print("\nCREATE A PASSWORD: ");
