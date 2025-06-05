@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.lang.Math;
 import java.io.IOException;
 import java.util.Scanner;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -819,15 +821,33 @@ public class AirlineManagement {
 // ================================
 // 2. Customer Management
 // ================================
+    // 
     public static void ViewDateFlights(AirlineManagement esql) {
         try {
+            System.out.print("1. FLights on a given date === \n");
             System.out.print("Enter departure city: ");
             String departureCity = in.readLine();
             System.out.print("Enter arrival city: ");
             String arrivalCity = in.readLine();
-            System.out.print("Enter departure date(M/D/YY): ");
+
+            // Convert user date into machine date
+            System.out.print("Enter date (M/D/YY): ");
             String departureDate = in.readLine();
-            String query = "SELECT * FROM FlightInstance WHERE DepartureCity = '" + departureCity + "' AND ArrivalCity = '" + arrivalCity + "' AND FlightDate = '" + departureDate + "'";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy");
+            LocalDate machineDate = LocalDate.parse(departureDate, formatter);
+
+            // Get DoW from machine date
+            DayOfWeek dow = DayOfWeek.from(machineDate);
+            String weekday = dow.toString();
+            weekday = weekday.charAt(0) + weekday.substring(1).toLowerCase();
+
+            // Using (F1##)(s), return the stats of the date chosen
+            String query = "SELECT F.FlightNumber, S.DepartureTime, S.ArrivalTime, I.NumOfStops FROM Flight AS F, Schedule AS S, FlightInstance as I WHERE F.DepartureCity = '"
+                    + departureCity + "' AND F.ArrivalCity = '" + arrivalCity
+                    + "' AND I.FlightDate = '" + departureDate
+                    + "' AND F.FlightNumber = I.FlightNumber AND F.FlightNumber = S.FlightNumber AND S.DayOfWeek = '"
+                    + weekday + "'";
+
             int rowCount = esql.executeQuery(query);
             System.out.println("total row(s): " + rowCount);
             esql.executeQueryAndPrintResult(query);
@@ -838,14 +858,18 @@ public class AirlineManagement {
 
     public static void FindTicketPrice(AirlineManagement esql) {
         try {
-            System.out.print("Enter flight number: ");
+            System.out.print("2. Ticket Price ===\n");
+            System.out.print("Enter flight number (F1##): ");
             String flightNumber = in.readLine();
-            System.out.print("Enter departure date(M/D/YY): ");
+            System.out.print("Enter departure date (M/D/YY): ");
             String departureDate = in.readLine();
-            String query = "SELECT Price FROM FlightInstance WHERE FlightNumber = ";
+
+            String query = "SELECT TicketCost FROM FlightInstance WHERE FlightNumber = ";
             query += "'" + flightNumber + "' AND FlightDate = '" + departureDate + "'";
 
-            // ///////////////////////////////
+            int rowCount = esql.executeQuery(query);
+            System.out.println("total row(s): " + rowCount);
+            esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -853,11 +877,14 @@ public class AirlineManagement {
 
     public static void FindAirplaneType(AirlineManagement esql) {
         try {
-            System.out.print("Enter flight number: ");
+            System.out.print("3. Airplane Type === \n");
+            System.out.print("Enter flight number (F1##): ");
             String flightNumber = in.readLine();
-            System.out.print("Enter departure date(M/D/YY): ");
-            String departureDate = in.readLine();
-            // ///////////////////////////////
+            String query = "SELECT P.Make, P.MODEL FROM Plane as P, Flight as F WHERE P.PlaneID = F.PlaneID AND F.FlightNumber = ";
+            query += "'" + flightNumber + "'";
+            int rowCount = esql.executeQuery(query);
+            System.out.println("total row(s): " + rowCount);
+            esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -865,7 +892,39 @@ public class AirlineManagement {
 
     public static void MakeReservation(AirlineManagement esql) {
         try {
-            // ///////////////////////////////
+            System.out.print("Enter Customer ID: ");
+            String customerID = in.readLine();
+            System.out.print("\nEnter Flight Instance ID: ");
+            String FlightInstanceID = in.readLine();
+
+            // Select Total Seats and Sold Seats, see whether to reserve or not
+            String seatQuery = "SELECT SeatsTotal, SeatsSold FROM FlightInstance WHERE FlightInstanceID = '"
+                    + FlightInstanceID + "'";
+            List<List<String>> result = esql.executeQueryAndReturnResult(seatQuery);
+            int SeatsTotal = Integer.parseInt(result.get(0).get(0));
+            int SeatsSold = Integer.parseInt(result.get(0).get(1));
+            String Status = "reserved";
+            if (SeatsTotal <= SeatsSold) {
+                Status = "waitlist";
+            }
+
+            // Get biggest reservation, extract and create next RID
+            String maxReservation = "SELECT MAX(ReservationID) FROM Reservation";
+            List<List<String>> result2 = esql.executeQueryAndReturnResult(maxReservation);
+            String maxReservationID = result2.get(0).get(0);
+            int reservationNumber = Integer.parseInt(maxReservationID.substring(1)) + 1;
+            String currentRID = String.format("R%04d", reservationNumber);
+
+            String query = "INSERT INTO Reservation(ReservationID, CustomerID, FlightInstanceID, Status) VALUES ('"
+                    + currentRID + "', '" + customerID + "', '" + FlightInstanceID + "', '" + Status + "')";
+            esql.executeUpdate(query);
+            System.out.print("Total Open Seats: " + (SeatsTotal - SeatsSold) + "\n");
+            System.out.print("Status: " + Status);
+
+            // Update number of seats available
+            String updateSeatCount = "UPDATE FlightInstance SET SeatsSold = SeatsSold + 1 WHERE FlightInstanceID = '"
+                    + FlightInstanceID + "'";
+            esql.executeQuery(updateSeatCount);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -873,7 +932,22 @@ public class AirlineManagement {
 
     public static void CancelReservation(AirlineManagement esql) {
         try {
-            // ///////////////////////////////
+            // Lmao no security
+            System.out.print("Cancel Reservation === \n ");
+            System.out.print("\nEnter ReservationID ID: ");
+            String ReservationID = in.readLine();
+
+            // Get FlightInstanceID to update seat count with later
+            String flightQuery = "SELECT FlightInstanceID FROM Reservation WHERE ReservationID = '"
+                    + ReservationID + "'";
+
+            String query = "DELETE FROM Reservation WHERE ReservationID = '" + ReservationID + "'";
+            esql.executeQuery(query);
+
+            // Update number of seats available
+            String updateSeatCount = "UPDATE FlightInstance SET SeatsSold = SeatsSold - 1 WHERE FlightInstanceID = '"
+                    + flightQuery + "'";
+            esql.executeQuery(updateSeatCount);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -883,7 +957,7 @@ public class AirlineManagement {
         try {
             System.out.print("Enter customer ID: ");
             String customerID = in.readLine();
-            String query = "SELECT * FROM Reservation WHERE CustomerID = ";
+            String query = "SELECT ReservationID, FlightInstanceID, Status FROM Reservation WHERE CustomerID = ";
             query += "'" + customerID + "'";
             int rowCount = esql.executeQuery(query);
             System.out.println("total row(s): " + rowCount);
@@ -898,7 +972,7 @@ public class AirlineManagement {
 // ================================
     public static void FindAllRepairs(AirlineManagement esql) {
         try {
-            System.out.print("Enter Plane ID: ");
+            System.out.print("Enter Plane ID (PL###): ");
             String planeID = in.readLine();
             String query = "SELECT * FROM Repair WHERE PlaneID = ";
             query += "'" + planeID + "'";
@@ -912,7 +986,7 @@ public class AirlineManagement {
 
     public static void FindAllPilotRequests(AirlineManagement esql) {
         try {
-            System.out.println("Enter Plane ID: ");
+            System.out.println("Enter Plane ID (PL###): ");
             String planeID = in.readLine();
             String query = "SELECT * FROM MaintenanceRequest WHERE PlaneID = ";
             query += "'" + planeID + "'";
@@ -925,4 +999,3 @@ public class AirlineManagement {
     }
 
 }//end AirlineManagement
-
