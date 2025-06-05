@@ -501,12 +501,17 @@ public class AirlineManagement {
    //View Flights weekly schedule based on flight number
    public static void FlightWeeklySchedule(AirlineManagement esql) {
       try{
-         System.out.print("Enter a flight number for all flights schedule for the week: ");
+         System.out.print("\nEnter a flight number for all flights schedule for the week: ");
          String query = "SELECT * FROM Schedule WHERE flightNumber = ";
          String flightNum = in.readLine();
+         while(esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
+            System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
+            System.out.print("ENTER FLIGHT NUMBER: ");
+            flightNum = in.readLine();
+         }
          query += "'"+ flightNum + "'";
 
-         if (esql.executeQueryAndReturnResult(query).size() == 0) {
+         if (esql.executeQuery(query) < 1) {
             System.out.println("FLIGHT: " + flightNum + " NOT AVAIALBE THIS WEEK\n");
             return;
          }
@@ -526,8 +531,16 @@ public class AirlineManagement {
       try {
          System.out.print("Enter a flight number: ");
          String flightNum = in.readLine();
+         while(esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
+            System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
+            System.out.print("ENTER FLIGHT NUMBER: ");
+            flightNum = in.readLine();
+         }
+
          System.out.print("Enter a flight date(M/D/YY): ");
          String flightDate = in.readLine();
+
+         
          String query = "SELECT SeatsTotal, SeatsSold, (SeatsTotal - SeatsSold) as SeatsOpen FROM FlightInstance WHERE FlightNumber = ";
          query += "'"+ flightNum + "' AND FlightDate = '" + flightDate + "'";
 
@@ -740,6 +753,12 @@ public class AirlineManagement {
       try {
          System.out.print("Enter Flight Number: ");
          String flightNum = in.readLine();
+         while(esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
+            System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER \n");
+            System.out.print("Enter Flight Number: ");
+            flightNum = in.readLine();
+         }
+
          System.out.print("\nEnter a Date Range (M/D/YY): \n\n");
          System.out.print("Start Date: ");
          String startDate = in.readLine();
@@ -780,10 +799,23 @@ public class AirlineManagement {
       try {
          System.out.print("Enter Pilot ID: ");
          String pilotID = in.readLine();
+         while(esql.executeQuery("SELECT * FROM Pilot WHERE pilotID = '" + pilotID + "'") < 1) {
+            System.out.println("PILOT DOES NOT EXIST. PLEASE GIVE A VALID PILOT ID\n");
+            System.out.print("Enter Pilot ID: ");
+            pilotID = in.readLine();
+         }
+
          System.out.print("\nEnter Plane ID: ");
          String planeID = in.readLine();
+         while (esql.executeQuery("SELECT * FROM Plane WHERE planeID = '" + planeID + "'") < 1) {
+            System.out.println("PLANE DOES NOT EXIST. PLEASE GIVE A VALID PLANE ID\n");
+            System.out.print("\nEnter Plane ID: ");
+            planeID = in.readLine();
+         }
+
          System.out.print("\nEnter the Repair Code: ");
          String repairCode = in.readLine();
+
          System.out.print("\nEnter Date of Request(YYYY-MM-DD): ");
          String requestDate = in.readLine();
 
