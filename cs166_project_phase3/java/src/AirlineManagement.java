@@ -559,6 +559,11 @@ public class AirlineManagement {
     }//end
 
 // Rest of the functions definition go in here   
+
+
+// ================================
+// 1. Airline Management
+// ================================
    //View ALL FLIGHTS
    public static void ViewFlights(AirlineManagement esql) {
       try {
@@ -870,44 +875,6 @@ public class AirlineManagement {
       }
    }
 
-   public static void MaintenaceRequest(AirlineManagement esql) {
-      try {
-         System.out.print("Enter Pilot ID: ");
-         String pilotID = in.readLine();
-         while(esql.executeQuery("SELECT * FROM Pilot WHERE pilotID = '" + pilotID + "'") < 1) {
-            System.out.println("PILOT DOES NOT EXIST. PLEASE GIVE A VALID PILOT ID\n");
-            System.out.print("Enter Pilot ID: ");
-            pilotID = in.readLine();
-         }
-
-         System.out.print("\nEnter Plane ID: ");
-         String planeID = in.readLine();
-         while (esql.executeQuery("SELECT * FROM Plane WHERE planeID = '" + planeID + "'") < 1) {
-            System.out.println("PLANE DOES NOT EXIST. PLEASE GIVE A VALID PLANE ID\n");
-            System.out.print("\nEnter Plane ID: ");
-            planeID = in.readLine();
-         }
-
-         System.out.print("\nEnter the Repair Code: ");
-         String repairCode = in.readLine();
-
-         System.out.print("\nEnter Date of Request(YYYY-MM-DD): ");
-         String requestDate = in.readLine();
-
-
-
-         int requestID =  esql.executeQuery("SELECT * FROM MaintenanceRequest") + 1;
-         String query = "INSERT INTO MaintenanceRequest(RequestID, PlaneID, RepairCode, RequestDate, PilotID) VALUES ("+requestID+", '"+ planeID +"', '"+ repairCode +"', '"+ requestDate +"', '"+ pilotID +"')";
-         System.out.println("\nMAKING REQUEST FOR:" + pilotID + " ON PLANE: " + planeID + "\n");
-         esql.executeUpdate(query);
-
-         String query2 = "SELECT * FROM MaintenanceRequest";
-         esql.executeQueryAndPrintResult(query2);
-      } catch (Exception e) {
-         System.err.println (e.getMessage());
-      }
-   }
-
 
 // ================================
 // 2. Customer Management
@@ -1057,6 +1024,48 @@ public class AirlineManagement {
             System.err.println(e.getMessage());
         }
     }
+
+// ================================
+// 3. Pilot
+// ================================
+   public static void MaintenaceRequest(AirlineManagement esql) {
+      try {
+         System.out.print("Enter Pilot ID: ");
+         String pilotID = in.readLine();
+         while(esql.executeQuery("SELECT * FROM Pilot WHERE pilotID = '" + pilotID + "'") < 1) {
+            System.out.println("PILOT DOES NOT EXIST. PLEASE GIVE A VALID PILOT ID\n");
+            System.out.print("Enter Pilot ID: ");
+            pilotID = in.readLine();
+         }
+
+         System.out.print("\nEnter Plane ID: ");
+         String planeID = in.readLine();
+         while (esql.executeQuery("SELECT * FROM Plane WHERE planeID = '" + planeID + "'") < 1) {
+            System.out.println("PLANE DOES NOT EXIST. PLEASE GIVE A VALID PLANE ID\n");
+            System.out.print("\nEnter Plane ID: ");
+            planeID = in.readLine();
+         }
+
+         System.out.print("\nEnter the Repair Code: ");
+         String repairCode = in.readLine();
+
+         System.out.print("\nEnter Date of Request(YYYY-MM-DD): ");
+         String requestDate = in.readLine();
+
+
+
+         int requestID =  esql.executeQuery("SELECT * FROM MaintenanceRequest") + 1;
+         String query = "INSERT INTO MaintenanceRequest(RequestID, PlaneID, RepairCode, RequestDate, PilotID) VALUES ("+requestID+", '"+ planeID +"', '"+ repairCode +"', '"+ requestDate +"', '"+ pilotID +"')";
+         System.out.println("\nMAKING REQUEST FOR:" + pilotID + " ON PLANE: " + planeID + "\n");
+         esql.executeUpdate(query);
+
+         String query2 = "SELECT * FROM MaintenanceRequest";
+         esql.executeQueryAndPrintResult(query2);
+      } catch (Exception e) {
+         System.err.println (e.getMessage());
+      }
+   }
+
 
 // ================================
 // 4. Technician Management
