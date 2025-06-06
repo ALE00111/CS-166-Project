@@ -555,8 +555,6 @@ public class AirlineManagement {
     }//end
 
 // Rest of the functions definition go in here   
-
-
 // ================================
 // 1. Airline Management
 // ================================
@@ -774,7 +772,6 @@ public class AirlineManagement {
         System.err.println (e.getMessage());
       }
    }
-
 
    //Given a plane number, get its make, model, age, and last repair date
    public static void PlaneInfo(AirlineManagement esql) {
@@ -1106,9 +1103,7 @@ public class AirlineManagement {
         String query = "INSERT INTO MaintenanceRequest(RequestID, PlaneID, RepairCode, RequestDate, PilotID) VALUES ("+requestID+", '"+ planeID +"', '"+ repairCode +"', '"+ requestDate +"', '"+ pilotID +"')";
         System.out.println("\nMAKING REQUEST FOR:" + pilotID + " ON PLANE: " + planeID + "\n");
         esql.executeUpdate(query);
-
-        String query2 = "SELECT * FROM MaintenanceRequest";
-        esql.executeQueryAndPrintResult(query2);
+        System.out.println("\nREPAIR REQUEST IS SENT BY PILOT " + pilotID + " FOR PLANE: " + planeID + " WITH REPAIR: " + repairCode + " ON " + requestDate);
       } catch (Exception e) {
         System.err.println (e.getMessage());
       }
