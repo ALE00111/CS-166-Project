@@ -307,9 +307,6 @@ public class AirlineManagement {
                             System.out.println("9. View All Repairs of a Technician");
                             System.out.println("10. View List of Repairs on a Plane");
                             System.out.println("11. View Flight Statistics");
-                            //System.out.println("5. View Full Order ID History");
-                            //  System.out.println(".........................");
-                            //  System.out.println(".........................");
                             System.out.println("20. Log out");
                             switch (readChoice()) {
                                 case 1:
@@ -325,7 +322,7 @@ public class AirlineManagement {
                                     FlightStatus(esql);
                                     break;
                                 case 5:
-                                    FlightsToday(esql);
+                                    FlightsPerDate(esql);
                                     break;
                                 case 6:
                                     PassengersList(esql);
@@ -473,6 +470,7 @@ public class AirlineManagement {
             System.out.print("Please make your choice: ");
             try { // read the integer, parse it and break.
                 input = Integer.parseInt(in.readLine());
+                System.out.println("\n");
                 break;
             } catch (Exception e) {
                 System.out.println("Your input is invalid!");
@@ -517,8 +515,6 @@ public class AirlineManagement {
             String query = "INSERT INTO Users (UserID, UserName, Password, UserType) VALUES (" + userID + ", '" + username + "', '" + password + "', " + usertype + ")";
             esql.executeUpdate(query);
             System.out.println("\nUSER CREATED\n");
-
-            esql.executeQueryAndPrintResult("SELECT * FROM USERS");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -537,7 +533,7 @@ public class AirlineManagement {
             while (true) {
                 String username;
                 String password;
-                System.out.print("\nENTER USERNAME: ");
+                System.out.print("ENTER USERNAME: ");
                 username = in.readLine();
                 System.out.print("\nENTER PASSWORD: ");
                 password = in.readLine();
@@ -559,8 +555,6 @@ public class AirlineManagement {
     }//end
 
 // Rest of the functions definition go in here   
-
-
 // ================================
 // 1. Airline Management
 // ================================
@@ -580,25 +574,24 @@ public class AirlineManagement {
    //View Flights weekly schedule based on flight number
    public static void FlightWeeklySchedule(AirlineManagement esql) {
       try{
-        System.out.print("\nEnter a flight number for a flights schedule for the week: ");
+        System.out.print("Enter a flight number (F###) for a flights schedule for the week: ");
         String query = "SELECT * FROM Schedule WHERE flightNumber = ";
         String flightNum = in.readLine();
-
         if (esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
-        System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
-        // System.out.print("ENTER FLIGHT NUMBER: ");
-        // flightNum = in.readLine();
-        return;
+            System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
+            // System.out.print("ENTER FLIGHT NUMBER: ");
+            // flightNum = in.readLine();
+            return;
         }
         query += "'"+ flightNum + "'";
-
-        if (esql.executeQuery(query) < 1) {
-        System.out.println("FLIGHT: " + flightNum + " NOT AVAIALBE THIS WEEK\n");
-        return;
+        
+        int rowCount = esql.executeQuery(query);
+        if (rowCount < 1) {
+            System.out.println("FLIGHT: " + flightNum + " NOT AVAIALBE THIS WEEK\n");
+            return;
         }
 
         System.out.println("ALL FLIGHTS FOR "+ flightNum + "\t\n");
-        int rowCount = esql.executeQuery(query);
         System.out.println ("total row(s): " + rowCount);
         esql.executeQueryAndPrintResult(query);
       }  catch(Exception e){
@@ -610,32 +603,32 @@ public class AirlineManagement {
    //View Number of Seats on a specific flight given flight number and date
    public static void FlightSeats(AirlineManagement esql) {
       try {
-        System.out.print("Enter a flight number: ");
+        System.out.print("Enter a flight number (F###): ");
         String flightNum = in.readLine();
 
         if (esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
-        System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
-        // System.out.print("ENTER FLIGHT NUMBER: ");
-        // flightNum = in.readLine();
-        return;
+            System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
+            // System.out.print("ENTER FLIGHT NUMBER: ");
+            // flightNum = in.readLine();
+            return;
         }
 
-        System.out.print("Enter a flight date(M/D/YY): ");
+        System.out.print("Enter a flight date (M/D/YY): ");
         String flightDate = in.readLine();
 
         
         String query = "SELECT SeatsTotal, SeatsSold, (SeatsTotal - SeatsSold) as SeatsOpen FROM FlightInstance WHERE FlightNumber = ";
         query += "'"+ flightNum + "' AND FlightDate = '" + flightDate + "'";
-
         System.out.println("\n");
-        if (esql.executeQueryAndReturnResult(query).size() == 0) {
-        System.out.println("FLIGHT: " + flightNum + " NOT AVAIALBE ON "+ flightDate + "\n");
-        return;
+
+        if (esql.executeQuery(query) < 1) {
+            System.out.println("FLIGHT: " + flightNum + " NOT AVAIALBE ON "+ flightDate + "\n");
+            return;
         }
 
         //executeQueryAndReturnResult returns a variable of type List<List<String>> which is a 2D array
         //result1.get(0).get(0) is broken down where result1.get(0) is returning the first row 
-        // and result1.get(0).get(0) is returning the first column
+        // and result1.get(0).get(0) is returning the first row and first column
 
         List<List<String>> result = esql.executeQueryAndReturnResult(query);
         int seatsSold = Integer.parseInt(result.get(0).get(1));
@@ -653,25 +646,25 @@ public class AirlineManagement {
    //View the flight status given a flight number and date
    public static void FlightStatus(AirlineManagement esql) {
       try {
-        System.out.print("Enter a flight number: ");
+        System.out.print("Enter a flight number (F###): ");
         String flightNum = in.readLine();
-    if (esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
-        System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
-        // System.out.print("ENTER FLIGHT NUMBER: ");
-        // flightNum = in.readLine();
-        return;
+        if (esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
+            System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
+            // System.out.print("ENTER FLIGHT NUMBER: ");
+            // flightNum = in.readLine();
+            return;
         }
 
 
-        System.out.print("Enter a flight date(M/D/YY): ");
+        System.out.print("Enter a flight date (M/D/YY): ");
         String flightDate = in.readLine();
         String query = "SELECT DepartedOnTime, ArrivedOnTime FROM FlightInstance WHERE FlightNumber = ";
         query += "'"+ flightNum + "' AND FlightDate = '" + flightDate + "'";
 
         System.out.println("\n");
         if (esql.executeQuery(query) < 1) {
-        System.out.println("FLIGHT: " + flightNum + " NOT AVAIALBE ON "+ flightDate + "\n");
-        return;
+            System.out.println("FLIGHT: " + flightNum + " NOT AVAIALBE ON "+ flightDate + "\n");
+            return;
         }
 
         //executeQueryAndReturnResult returns a variable of type List<List<String>> which is a 2D array
@@ -686,17 +679,17 @@ public class AirlineManagement {
         System.out.println("ON DATE: \t" + flightDate + "\n");
         
         if(DepartureStatus.equals("f")) {
-        System.out.println("DEPARTURE STATUS: \t NOT ON TIME\n");
+            System.out.println("DEPARTURE STATUS: \t NOT ON TIME\n");
         }
         else {
-        System.out.println("DEPARTURE STATUS: \t ON TIME\n");
+            System.out.println("DEPARTURE STATUS: \t ON TIME\n");
         }
 
         if(ArrivalStatus.equals("f")) {
-        System.out.println("ARRIVAL STATUS: \t NOT ON TIME\n");
+            System.out.println("ARRIVAL STATUS: \t NOT ON TIME\n");
         }
         else {
-        System.out.println("ARRIVAL STATUS: \t ON TIME\n");
+            System.out.println("ARRIVAL STATUS: \t ON TIME\n");
         }
       } catch (Exception e) {
         System.err.println (e.getMessage());
@@ -704,19 +697,19 @@ public class AirlineManagement {
    }
 
    //View all flights for a given day
-   public static void FlightsToday(AirlineManagement esql) {
+   public static void FlightsPerDate(AirlineManagement esql) {
       try {
-        System.out.print("Enter a flight date(M/D/YY): ");
+        System.out.print("Enter a flight date (M/D/YY): ");
         String flightDate = in.readLine();
         String query = "SELECT * FROM FlightInstance WHERE FlightDate = '"+ flightDate + "'";
 
-        if (esql.executeQuery(query) < 1) {
-        System.out.println("INVALID DATE OR NOT FLIGHTS ON THIS DATE\n");
-        return;
+        int rowCount = esql.executeQuery(query);
+        if (rowCount < 1) {
+            System.out.println("INVALID DATE OR NOT FLIGHTS ON THIS DATE\n");
+            return;
         }
 
-        System.out.println("\n FLIGHTS SCHEDULED ON: " + flightDate + "\n");
-        int rowCount = esql.executeQuery(query);
+        System.out.println("\nFLIGHTS SCHEDULED ON: " + flightDate + "\n");
         System.out.println ("total row(s): " + rowCount);
         esql.executeQueryAndPrintResult(query);
       } catch (Exception e) {
@@ -727,24 +720,26 @@ public class AirlineManagement {
    //View list of all passengers who reserved, are on the waiting list, and who actually flew on the flight
    public static void PassengersList(AirlineManagement esql) {
       try {
-        System.out.print("Enter a flight number: ");
+        System.out.print("Enter a flight number (F###): ");
         String flightNum = in.readLine();
         if (esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
             System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
             return;
-         }
-        System.out.print("Enter a flight date(M/D/YY): ");
-        String flightDate = in.readLine();
-        String query = "SELECT f.FlightInstanceID, r.Status  FROM FlightInstance f, Reservation r WHERE f.FlightNumber = ";
-        query += "'"+ flightNum + "' AND f.FlightDate = '" + flightDate + "' AND f.FlightInstanceID = r.FlightInstanceID";
-
-        if (esql.executeQueryAndReturnResult(query).size() == 0) {
-        System.out.println("FLIGHT: " + flightNum + " NOT AVAIALBE ON "+ flightDate + "\n");
-        return;
         }
 
-        System.out.println("\n ALL PASSENGERS STATUS OF FLIGHT: " + flightNum + " ON " + "flightDate\n");
+        System.out.print("Enter a flight date (M/D/YY): ");
+        String flightDate = in.readLine();
+
+        String query = "SELECT f.FlightInstanceID, r.CustomerID, r.Status  FROM FlightInstance f, Reservation r WHERE f.FlightNumber = ";
+        query += "'"+ flightNum + "' AND f.FlightDate = '" + flightDate + "' AND f.FlightInstanceID = r.FlightInstanceID";
+
         int rowCount = esql.executeQuery(query);
+        if (rowCount < 1) {
+            System.out.println("FLIGHT: " + flightNum + " NOT AVAIALBE ON "+ flightDate + "\n");
+            return;
+        }
+
+        System.out.println("\nALL PASSENGERS STATUS OF FLIGHT: " + flightNum + " ON " + flightDate + "\n");
         System.out.println ("total row(s): " + rowCount);
         esql.executeQueryAndPrintResult(query);
       } catch (Exception e) {
@@ -755,7 +750,7 @@ public class AirlineManagement {
    //Given a reservation number, retrieve information about the travelers under that number
    public static void PassengerInfo(AirlineManagement esql) {
       try {
-        System.out.print("Enter Reservation ID: ");
+        System.out.print("Enter Reservation ID (R####): ");
         String reservationID = in.readLine();
         if (esql.executeQuery("SELECT * FROM Reservation WHERE ReservationID = '" + reservationID + "'") < 1) {
             System.out.println("RESERVATION DOES NOT EXIST. PLEASE GIVE A VALID RESERVATION ID\n");
@@ -764,13 +759,13 @@ public class AirlineManagement {
 
         String query = "SELECT * FROM Customer c WHERE c.CustomerID = (SELECT r.CustomerId FROM Reservation r WHERE r.ReservationID = '" + reservationID + "')";
 
-        if (esql.executeQueryAndReturnResult(query).size() == 0) {
-        System.out.println("Reservation: " + reservationID + " DOES NOT EXIST\n");
-        return;
+        int rowCount = esql.executeQuery(query);
+        if (rowCount < 1) {
+            System.out.println("Reservation: " + reservationID + " DOES NOT EXIST\n");
+            return;
         }
         
-        System.out.println("\n INFORMATION OF CUSTOMER WITH RESERVATION: \t" + reservationID + "\n");
-        int rowCount = esql.executeQuery(query);
+        System.out.println("\nINFORMATION OF CUSTOMER WITH RESERVATION: \t" + reservationID + "\n");
         System.out.println ("total row(s): " + rowCount);
         esql.executeQueryAndPrintResult(query);
       } catch (Exception e) {
@@ -778,20 +773,20 @@ public class AirlineManagement {
       }
    }
 
-
    //Given a plane number, get its make, model, age, and last repair date
    public static void PlaneInfo(AirlineManagement esql) {
       try {
-        System.out.print("Enter Plane ID: ");
+        System.out.print("Enter Plane ID (PL###): ");
         String planeID= in.readLine();
         String query = "SELECT * FROM Plane WHERE PlaneID = '" + planeID + "'";
-        if (esql.executeQuery(query) < 1) {
+
+        int rowCount = esql.executeQuery(query);
+        if (rowCount < 1) {
             System.out.println("PLANE: " + planeID + " DOES NOT EXIST\n");
             return;
         }
 
         System.out.println("\nINFORMATION OF PLANE: \t" + planeID + "\n");
-        int rowCount = esql.executeQuery(query);
         System.out.println ("total row(s): " + rowCount);
         esql.executeQueryAndPrintResult(query);
       } catch (Exception e) {
@@ -802,54 +797,52 @@ public class AirlineManagement {
    //Given a maintenance technician ID, list all repairs made by that person
    public static void TechnicianInfo(AirlineManagement esql) {
        try {
-         System.out.print("Enter Technician ID: ");
-         String technicianID = in.readLine();
+        System.out.print("Enter Technician ID (T###): ");
+        String technicianID = in.readLine();
         if (esql.executeQuery("SELECT * FROM Technician WHERE TechnicianID = '" + technicianID + "'") < 1) {
             System.out.println("TECHNICIAN DOES NOT EXIST. PLEASE GIVE A VALID TECHNICIAN ID\n");
             return;
         }
 
-         String query = "SELECT * FROM Repair WHERE TechnicianID = '" + technicianID + "'";
-         if (esql.executeQuery(query) < 1) {
+        String query = "SELECT * FROM Repair WHERE TechnicianID = '" + technicianID + "'";
+        int rowCount = esql.executeQuery(query);
+        if (rowCount < 1) {
             System.out.println("TECHNICIAN: " + technicianID + " DOES NOT HAVE REPAIRS\n");
             return;
-         }
+        }
 
-         System.out.println("\nREPAIRS MADE BY: \t" + technicianID + "\n");
-         int rowCount = esql.executeQuery(query);
-         System.out.println ("total row(s): " + rowCount);
-         esql.executeQueryAndPrintResult(query);
+        System.out.println("\nREPAIRS MADE BY: \t" + technicianID + "\n");
+        System.out.println ("total row(s): " + rowCount);
+        esql.executeQueryAndPrintResult(query);
       } catch (Exception e) {
-         System.err.println (e.getMessage());
+        System.err.println (e.getMessage());
       }
    }
 
    //Given a plane ID and a date range, list all the dates and the codes for repairs performed
    public static void PlaneRepairRange(AirlineManagement esql) {
       try {
-        System.out.print("Enter Plane ID: ");
+        System.out.print("Enter Plane ID (PL###): ");
         String planeID= in.readLine();
         if (esql.executeQuery("SELECT * FROM Plane WHERE PlaneID = '" + planeID + "'") < 1) {
             System.out.println("PLANE DOES NOT EXIST. PLEASE GIVE A VALID PLANE ID\n");
             return;
         }
-        
-
 
         System.out.print("\nEnter a Date Range (YYYY-MM-DD): \n\n");
         System.out.print("Start Date: ");
         String startDate = in.readLine();
         System.out.print("\nEnd Date: ");
         String endDate = in.readLine();
-        String query = "SELECT PlaneID, RepairDate, RepairCode FROM Repair WHERE RepairDate >= '" + startDate +"' AND RepairDate <= '" + endDate + "' AND PlaneID = '" + planeID + "'"; 
 
-        if (esql.executeQueryAndReturnResult(query).size() == 0) {
-        System.out.println("\nNO PLANEID: " + planeID + " HAS REPAIRS BETWEEN: " + startDate + " to " + startDate + "\n");
-        return;
+        String query = "SELECT PlaneID, RepairDate, RepairCode FROM Repair WHERE RepairDate >= '" + startDate +"' AND RepairDate <= '" + endDate + "' AND PlaneID = '" + planeID + "'"; 
+        int rowCount = esql.executeQuery(query);
+        if (rowCount < 1) {
+            System.out.println("\nNO PLANEID: " + planeID + " HAS REPAIRS BETWEEN: " + startDate + " TO " + startDate + "\n");
+            return;
         }
 
         System.out.println("\nREPAIRS ON PLANE: \t" + planeID + " FROM: " + startDate + " TO: " + endDate + "\n");
-        int rowCount = esql.executeQuery(query);
         System.out.println ("total row(s): " + rowCount);
         esql.executeQueryAndPrintResult(query);
       } catch (Exception e) {
@@ -861,13 +854,13 @@ public class AirlineManagement {
    //number of days the flight departed and arrived (how many flight instances happened for this flight), number of sold and unsold tickets
    public static void FlightStats(AirlineManagement esql) {
       try {
-        System.out.print("Enter Flight Number: ");
+        System.out.print("Enter Flight Number (F###): ");
         String flightNum = in.readLine();
         if (esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
-        System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER \n");
-        // System.out.print("Enter Flight Number: ");
-        // flightNum = in.readLine();
-        return;
+            System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER \n");
+            // System.out.print("Enter Flight Number: ");
+            // flightNum = in.readLine();
+            return;
         }
 
         System.out.print("\nEnter a Date Range (M/D/YY): \n\n");
@@ -890,11 +883,11 @@ public class AirlineManagement {
         int totalFlights = 0;
 
         for(int i = 0; i < result.size(); ++i) {
-        int seatsSold = Integer.parseInt(result.get(i).get(3));
-        int seatsOpen = Integer.parseInt(result.get(i).get(4));
-        totalSold += seatsSold;
-        totalUnsold += seatsOpen;
-        totalFlights += 1;
+            int seatsSold = Integer.parseInt(result.get(i).get(3));
+            int seatsOpen = Integer.parseInt(result.get(i).get(4));
+            totalSold += seatsSold;
+            totalUnsold += seatsOpen;
+            totalFlights += 1;
         }
 
         System.out.println("\n\tTOTAL FLIGHTS: " + totalFlights + "\n");
@@ -938,6 +931,11 @@ public class AirlineManagement {
                     + weekday + "'";
 
             int rowCount = esql.executeQuery(query);
+            if(rowCount < 1) {
+                System.out.println("\nNO FLIGHT FROM " + departureCity + " TO " + arrivalCity + " ON " + departureDate);
+                return;
+            }
+
             System.out.println("total row(s): " + rowCount);
             esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
@@ -957,6 +955,11 @@ public class AirlineManagement {
             query += "'" + flightNumber + "' AND FlightDate = '" + departureDate + "'";
 
             int rowCount = esql.executeQuery(query);
+            if(rowCount < 1) {
+                System.out.println("\nFLIGHT NUMBER: " + flightNumber + " ON " + departureDate + " HAS NO TICKET COST");
+                return;
+            }
+
             System.out.println("total row(s): " + rowCount);
             esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
@@ -972,6 +975,10 @@ public class AirlineManagement {
             String query = "SELECT P.Make, P.MODEL FROM Plane as P, Flight as F WHERE P.PlaneID = F.PlaneID AND F.FlightNumber = ";
             query += "'" + flightNumber + "'";
             int rowCount = esql.executeQuery(query);
+            if (rowCount < 1) {
+                System.out.println("FLIGHT: " + flightNumber + " DOES NOT HAVE A PLANE MODEL");
+                return;
+            }
             System.out.println("total row(s): " + rowCount);
             esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
@@ -1009,6 +1016,7 @@ public class AirlineManagement {
             esql.executeUpdate(query);
             System.out.print("Total Open Seats: " + (SeatsTotal - SeatsSold) + "\n");
             System.out.print("Status: " + Status);
+            System.out.println("\n");
 
             // Update number of seats available
             String updateSeatCount = "UPDATE FlightInstance SET SeatsSold = SeatsSold + 1 WHERE FlightInstanceID = '"
@@ -1023,7 +1031,7 @@ public class AirlineManagement {
         try {
             // Lmao no security
             System.out.print("Cancel Reservation === \n ");
-            System.out.print("\nEnter ReservationID ID: ");
+            System.out.print("\nEnter ReservationID ID (R####): ");
             String ReservationID = in.readLine();
 
             // Get FlightInstanceID to update seat count with later
@@ -1049,6 +1057,10 @@ public class AirlineManagement {
             String query = "SELECT ReservationID, FlightInstanceID, Status FROM Reservation WHERE CustomerID = ";
             query += "'" + customerID + "'";
             int rowCount = esql.executeQuery(query);
+            if (rowCount < 1) {
+                System.out.println("CUSTOMER: " + customerID + " HAS NO RESERVATIONS");
+                return;
+            }
             System.out.println("total row(s): " + rowCount);
             esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
@@ -1061,7 +1073,7 @@ public class AirlineManagement {
 // ================================
    public static void MaintenaceRequest(AirlineManagement esql) {
       try {
-        System.out.print("Enter Pilot ID: ");
+        System.out.print("Enter Pilot ID (P###): ");
         String pilotID = in.readLine();
         if (esql.executeQuery("SELECT * FROM Pilot WHERE pilotID = '" + pilotID + "'") < 1) {
             System.out.println("PILOT DOES NOT EXIST. PLEASE GIVE A VALID PILOT ID\n");
@@ -1070,7 +1082,7 @@ public class AirlineManagement {
             return;
         }
 
-        System.out.print("\nEnter Plane ID: ");
+        System.out.print("\nEnter Plane ID (PL###): ");
         String planeID = in.readLine();
         if (esql.executeQuery("SELECT * FROM Plane WHERE planeID = '" + planeID + "'") < 1) {
             System.out.println("PLANE DOES NOT EXIST. PLEASE GIVE A VALID PLANE ID\n");
@@ -1079,7 +1091,7 @@ public class AirlineManagement {
             return;
         }
 
-        System.out.print("\nEnter the Repair Code: ");
+        System.out.print("\nEnter the Repair Code (RC###): ");
         String repairCode = in.readLine();
 
         System.out.print("\nEnter Date of Request(YYYY-MM-DD): ");
@@ -1091,9 +1103,7 @@ public class AirlineManagement {
         String query = "INSERT INTO MaintenanceRequest(RequestID, PlaneID, RepairCode, RequestDate, PilotID) VALUES ("+requestID+", '"+ planeID +"', '"+ repairCode +"', '"+ requestDate +"', '"+ pilotID +"')";
         System.out.println("\nMAKING REQUEST FOR:" + pilotID + " ON PLANE: " + planeID + "\n");
         esql.executeUpdate(query);
-
-        String query2 = "SELECT * FROM MaintenanceRequest";
-        esql.executeQueryAndPrintResult(query2);
+        System.out.println("\nREPAIR REQUEST IS SENT BY PILOT " + pilotID + " FOR PLANE: " + planeID + " WITH REPAIR: " + repairCode + " ON " + requestDate);
       } catch (Exception e) {
         System.err.println (e.getMessage());
       }
@@ -1107,9 +1117,21 @@ public class AirlineManagement {
         try {
             System.out.print("Enter Plane ID (PL###): ");
             String planeID = in.readLine();
+
+            System.out.print("\nEnter a Date Range (YYYY-MM-DD): \n\n");
+            System.out.print("Start Date: ");
+            String startDate = in.readLine();
+            System.out.print("\nEnd Date: ");
+            String endDate = in.readLine();
+
+
             String query = "SELECT * FROM Repair WHERE PlaneID = ";
-            query += "'" + planeID + "'";
+            query += "'" + planeID + "' AND RepairDate >= '" + startDate +"' AND RepairDate <= '" + endDate + "'";
             int rowCount = esql.executeQuery(query);
+            if (rowCount < 1) {
+                System.out.println("PLANE ID: " + planeID + " HAS 0 REPAIRS ON GIVEN DATE");
+                return;
+            }
             System.out.println("total row(s): " + rowCount);
             esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
@@ -1119,11 +1141,15 @@ public class AirlineManagement {
 
     public static void FindAllPilotRequests(AirlineManagement esql) {
         try {
-            System.out.println("Enter Plane ID (PL###): ");
-            String planeID = in.readLine();
-            String query = "SELECT * FROM MaintenanceRequest WHERE PlaneID = ";
-            query += "'" + planeID + "'";
+            System.out.print("Enter Pilot ID (P###): ");
+            String pilotID = in.readLine();
+            String query = "SELECT * FROM MaintenanceRequest WHERE PilotID = ";
+            query += "'" + pilotID + "'";
             int rowCount = esql.executeQuery(query);
+            if (rowCount < 1) {
+                System.out.println("PILOT ID: " + pilotID + "HAS 0 REQUESTS");
+                return;
+            }
             System.out.println("total row(s): " + rowCount);
             esql.executeQueryAndPrintResult(query);
         } catch (Exception e) {
