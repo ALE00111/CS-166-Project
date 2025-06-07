@@ -575,7 +575,7 @@ public class AirlineManagement {
    public static void FlightWeeklySchedule(AirlineManagement esql) {
       try{
         System.out.print("Enter a flight number (F###) for a flights schedule for the week: ");
-        String query = "SELECT * FROM Schedule WHERE flightNumber = ";
+        String query = "SELECT * FROM Schedule WHERE FlightNumber = ";
         String flightNum = in.readLine();
         if (esql.executeQuery("SELECT * FROM Flight WHERE FlightNumber = '" + flightNum + "'") < 1) {
             System.out.println("FLIGHT DOES NOT EXIST. PLEASE GIVE A VALID FLIGHT NUMBER\n");
@@ -890,7 +890,7 @@ public class AirlineManagement {
 
 
 // ================================
-// 2. Customer Management
+// 2. Customer
 // ================================
     public static void ViewDateFlights(AirlineManagement esql) {
         try {
@@ -1072,7 +1072,7 @@ public class AirlineManagement {
     }
 
 // ================================
-// 3. Pilot Management
+// 3. Pilot
 // ================================
    public static void MaintenaceRequest(AirlineManagement esql) {
       try {
@@ -1109,7 +1109,7 @@ public class AirlineManagement {
 
 
 // ================================
-// 4. Technician Management
+// 4. Technician
 // ================================
     public static void FindAllRepairs(AirlineManagement esql) {
         try {
